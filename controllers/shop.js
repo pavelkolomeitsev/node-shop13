@@ -8,25 +8,13 @@ exports.getProducts = (req, res, next) => {
             res.render('shop/product-list', { prods: products, pageTitle: 'All products', path: '/products' });
         })
         .catch(error => console.log(error));
-    // pass an anonymous function into 'fetchAll', which takes 'products' as an argument
-    // Product.fetchAll()
-    //     // destructuring - we receive a list, and instead of write 'results'
-    //     // we write [] and in it one named element: element 0 - stands for 'rows'
-    //     .then(([rows]) => {
-
-    //     })
-    //     .catch(error => console.log(error));
 }
 
 exports.getProduct = (req, res, next) => {
     // :productId in routes/shop.js and req.params.productId HAVE TO MATCH
     const prodId = req.params.productId;
-    // prodId - id, product => {} - callback
 
     Product.findByPk(prodId)
-        // destructuring - we receive a list of products, but as id is uniq, list will consist only of one element
-        // so [product] - it`s a list with one element,
-        // but we have to pass an element not a list, so 'product: product[0]'
         .then(product => {
             res.render('shop/product-detail', {
                 product: product, pageTitle: product.title, path: '/products'
