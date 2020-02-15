@@ -78,13 +78,15 @@ sequelize.sync()
     .then(user => {
 
         // if we`ve got a new user, create a cart
-        if (!user.getCart()) {
-            return user.createCart();
+
+        if (user.getCart()) {
+            return;
         }
-        //return user.createCart();
-        return user.getCart()
+
+        return user.createCart();
     })
     .then(cart => {
+
         // it takes a server`s work to itself to listen to events
         // start our server only if we succesfully connect tables and models
         app.listen(9000);
