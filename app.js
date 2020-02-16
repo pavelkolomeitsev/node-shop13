@@ -77,15 +77,11 @@ sequelize.sync()
     })
     .then(user => {
 
-        // if we`ve got a new user, create a cart
-
-        if (user.getCart()) {
-            return;
-        }
-
-        return user.createCart();
+        // check if the user has a cart or he doesn`t
+        // this method will return an existing cart or create a new one
+        return Cart.findOrCreate({ where: { userId: user.id }, defaults: { userId: user.id } });
     })
-    .then(cart => {
+    .then(([cart, created]) => {
 
         // it takes a server`s work to itself to listen to events
         // start our server only if we succesfully connect tables and models
