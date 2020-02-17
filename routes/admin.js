@@ -15,17 +15,17 @@ const router = express.Router();
 router.get('/add-product', adminController.getAddProduct);
 
 // /admin/products => GET
-router.get('/products', adminController.getProducts);
+//router.get('/products', adminController.getProducts);
 
 // we can filter post and get requests with the help of get and post commands
 // TWO IMPORTANT THINGS post/get/put/delete commands and PATH ('/product')
 // /admin/add-product => POST
 router.post('/add-product', adminController.postAddProduct); // property-function of productsController-object
 
-router.get('/edit-product/:productId', adminController.getEditProduct);
+//router.get('/edit-product/:productId', adminController.getEditProduct);
 
-router.post('/edit-product', adminController.postEditProduct);
+//router.post('/edit-product', adminController.postEditProduct);
 
-router.post('/delete-product', adminController.postDeleteProduct);
+//router.post('/delete-product', adminController.postDeleteProduct);
 
 module.exports = router;

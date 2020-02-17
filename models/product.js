@@ -1,34 +1,19 @@
-// set a reference which gives us a Class function
-const { Sequelize } = require('sequelize');
+const getDB = require('../util/database').getDB;
 
-// connect our database
-const sequelize = require('../util/database');
-
-// define a Product-model
-// first arg - a name of model, second - define a structure of model
-const Product = sequelize.define('product', {
-    id: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
-        allowNull: false,
-        primaryKey: true
-    },
-    title: {
-        type: Sequelize.STRING,
-        allowNull: false
-    },
-    price: {
-        type: Sequelize.DOUBLE,
-        allowNull: false
-    },
-    imageUrl: {
-        type: Sequelize.STRING,
-        allowNull: false
-    },
-    description: {
-        type: Sequelize.STRING,
-        allowNull: false
+class Product {
+    constructor(title, price, imageUrl, description) {
+        this.title = title;
+        this.price = price;
+        this.imageUrl = imageUrl;
+        this.description = description;
     }
-});
+
+    save() {
+        const db = getDB();
+        db.collection('products').insertOne(this)
+            .then(result => console.log(result))
+            .catch(error => console.log(error));
+    }
+}
 
 module.exports = Product;
