@@ -13,15 +13,12 @@ exports.postAddProduct = (req, res, next) => {
     const imageUrl = req.body.imageUrl;
     const price = req.body.price;
     const description = req.body.description;
+
+    const product = new Product(title, price, imageUrl, description);
     // use magic association method of sequelize
     // as user one-to-many products, so we can create a separate product for user
-    req.user
-        .createProduct({
-            title: title,
-            imageUrl: imageUrl,
-            price: price,
-            description: description,
-        })
+    product
+        .save()
         .then(() => {
             res.redirect('/admin/products');
         })

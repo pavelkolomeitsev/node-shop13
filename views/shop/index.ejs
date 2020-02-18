@@ -24,6 +24,8 @@
             <p class="product__description"><%= product.description %></p>
           </div>
           <div class="card__actions">
+            <!-- we pass to route a reference of the page and a uniq id of the item -->
+            <a href="/products/<%= product._id %> " class="btn">Details</a>
             <%- include('../includes/add-to-cart.ejs', {product: product}) %>
           </div>
         </article>

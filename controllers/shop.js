@@ -2,7 +2,7 @@ const Product = require('../models/product');
 
 exports.getProducts = (req, res, next) => {
 
-    Product.findAll()
+    Product.fetchAll()
         .then(products => {
             // we pass 'products' as a map item
             res.render('shop/product-list', { prods: products, pageTitle: 'All products', path: '/products' });
@@ -14,7 +14,7 @@ exports.getProduct = (req, res, next) => {
     // :productId in routes/shop.js and req.params.productId HAVE TO MATCH
     const prodId = req.params.productId;
 
-    Product.findByPk(prodId)
+    Product.findById(prodId)
         .then(product => {
             res.render('shop/product-detail', {
                 product: product, pageTitle: product.title, path: '/products'
@@ -25,9 +25,8 @@ exports.getProduct = (req, res, next) => {
 
 exports.getIndex = (req, res, next) => {
 
-    Product.findAll()
+    Product.fetchAll()
         .then(products => {
-            // we pass 'products' as a map item
             res.render('shop/product-list', { prods: products, pageTitle: 'All products', path: '/products' });
         })
         .catch(error => console.log(error));
