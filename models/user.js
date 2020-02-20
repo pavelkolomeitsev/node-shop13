@@ -1,26 +1,22 @@
-// set a reference which gives us a Class function
-const { Sequelize } = require('sequelize');
+const mongodb = require('mongodb');
 
-// connect our database
-const sequelize = require('../util/database');
+const getDB = require('../util/database').getDB;
 
-// define a User-model
-// first arg - a name of model, second - define a structure of model
-const User = sequelize.define('user', {
-    id: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
-        allowNull: false,
-        primaryKey: true
-    },
-    name: {
-        type: Sequelize.STRING,
-        allowNull: false
-    },
-    email: {
-        type: Sequelize.STRING,
-        allowNull: false
+class User {
+    constructor(userName, email, id) {
+        this.userName = userName;
+        this.email = email;
     }
-});
 
+    save() {
+        const db = getDB();
+
+        return db.collection('users').insertOne(this);
+    }
+
+    static findById(userId) {
+        const db = getDB();
+        return db.collection('users').findOne({ _id: new mongodb.ObjectId(userId) });
+    }
+}
 module.exports = User;

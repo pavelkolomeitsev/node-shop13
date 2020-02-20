@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const path = require('path'); // it`s a path-builder to the directory or file
 
 const mongoConnection = require('./util/database').mongoConnection;
+const User = require('./models/user');
 
 const app = express();
 
@@ -30,13 +31,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 // register this function, it will execute only on incoming request
 app.use((req, res, next) => {
     // we retrieve an exact user from database (table 'User')
-    // User.findByPk(1)
-    //     .then(user => {
-    //         req.user = user; // and add a new field (sequelize object) to the request object - (GET)
-    //         next(); // call next() the request will reach a route handler
-    //     })
-    //     .catch(error => console.log(error));
-    next();
+    User.findById('5e4e4a6d135dc3136834ef77')
+        .then(user => {
+            req.user = user; // and add a new field (sequelize object) to the request object - (GET)
+            next(); // call next() the request will reach a route handler
+        })
+        .catch(error => console.log(error));
 });
 
 // register our routes in app.js

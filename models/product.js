@@ -3,12 +3,13 @@ const mongoDB = require('mongodb');
 const getDB = require('../util/database').getDB;
 
 class Product {
-    constructor(title, price, imageUrl, description, id) {
+    constructor(title, price, imageUrl, description, id, userId) {
         this.title = title;
         this.price = price;
         this.imageUrl = imageUrl;
         this.description = description;
         this._id = id ? new mongoDB.ObjectId(id) : null;
+        this.userId = userId;
     }
 
     save() {
@@ -19,6 +20,7 @@ class Product {
         } else {
             dbOptinal = db.collection('products').insertOne(this);
         }
+
         return dbOptinal;
     }
 
