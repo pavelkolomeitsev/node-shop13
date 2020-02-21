@@ -33,7 +33,8 @@ app.use((req, res, next) => {
     // we retrieve an exact user from database (table 'User')
     User.findById('5e4e4a6d135dc3136834ef77')
         .then(user => {
-            req.user = user; // and add a new field (sequelize object) to the request object - (GET)
+            // to have an access to all functionality of User-object we have to create a new one
+            req.user = new User(user.name, user.email, user.cart, user._id);
             next(); // call next() the request will reach a route handler
         })
         .catch(error => console.log(error));
