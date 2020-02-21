@@ -48,7 +48,7 @@ class User {
         });
         // return all products which mentioned in the cart
         // we pass an array of ids for checking
-        return db.collection('products').find({ _id: { $in: [productIds] } }).toArray()
+        return db.collection('products').find({ _id: { $in: productIds } }).toArray()
             .then(products => {
                 return products.map(product => {
                     // for quantity: at first find product in the cart
@@ -60,6 +60,17 @@ class User {
                     };
                 });
             });
+    }
+
+    deleteProductFromCart(productId) {
+        const updatedCartItems = this.cart.items.filter(item => {
+            return item.productId.toString() !== productId.toString();
+        });
+
+        const db = getDB();
+
+        return db.collection('users')
+            .updateOne({ _id: new mongodb.ObjectId(this._id) }, { $set: { cart: { items: updatedCartItems } } });
     }
 
     static findById(userId) {

@@ -54,21 +54,14 @@ exports.postCart = (req, res, next) => {
             return req.user.addToCart(product);
         })
         .then(result => {
-
+            res.redirect('/cart');
         })
         .catch(error => console.log(error));
 }
 
 exports.postCartDeleteProduct = (req, res, next) => {
     const prodId = req.body.productId;
-    req.user.getCart()
-        .then(cart => {
-            return cart.getProducts({ where: { id: prodId } });
-        })
-        .then(products => {
-            const product = products[0];
-            return product.cartItem.destroy();
-        })
+    req.user.deleteProductFromCart(prodId)
         .then(() => {
             res.redirect('/cart');
         })
