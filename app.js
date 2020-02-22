@@ -31,7 +31,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // register this function, it will execute only on incoming request
 app.use((req, res, next) => {
     // we retrieve an exact user from database (table 'User')
-    User.findById('5e4e4a6d135dc3136834ef77')
+    User.findById('5e50eb7f9974541370bcf8ee')
         .then(user => {
             // to have an access to all functionality of User-object we have to create a new one
             req.user = new User(user.name, user.email, user.cart, user._id);

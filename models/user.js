@@ -4,7 +4,7 @@ const getDB = require('../util/database').getDB;
 
 class User {
     constructor(userName, email, cart, id) {
-        this.userName = userName;
+        this.name = userName;
         this.email = email;
         this.cart = cart;
         this._id = id;
@@ -71,6 +71,36 @@ class User {
 
         return db.collection('users')
             .updateOne({ _id: new mongodb.ObjectId(this._id) }, { $set: { cart: { items: updatedCartItems } } });
+    }
+
+    addOrder() {
+        const db = getDB();
+        // get user`s products from the cart
+        return this.getCart().then(products => {
+            // create an order object which has user`s id and products in the cart
+            const order = {
+                items: products,
+                user: {
+                    _id: new mongodb.ObjectId(this._id),
+                    name: this.name,
+                }
+            };
+            // insert an order-item into the collection
+            return db.collection('orders').insertOne(order);
+        })
+            .then(result => {
+                this.cart = { items: [] }; // in the user`s cart make an array of items empty
+                // update property cart in the user-object
+                return db.collection('users')
+                    .updateOne({ _id: new mongodb.ObjectId(this._id) }, { $set: { cart: { items: [] } } });
+            });
+
+    }
+
+    getOrders() {
+        const db = getDB();
+
+        return db.collection('orders').find({ 'user._id': new mongodb.ObjectId(this._id) }).toArray();
     }
 
     static findById(userId) {
