@@ -49,47 +49,32 @@ class User {
             return item.productId;
         });
 
-        // check if products from user`s cart are valid (if they are in the shop)
-        // get all available products from shop
-        return db.collection('products').find({ userId: new mongodb.ObjectId(this._id) }).toArray()
-            .then(availableProducts => {
-                // get ids of products
-                const avProdIds = availableProducts.map(item => {
-                    return item._id;
-                });
+        // return all products which mentioned in the cart
+        // we pass an array of ids for checking
+        return db.collection('products').find({ _id: { $in: productIds } }).toArray()
+            .then(products => {
 
-                let updatedCart = [];
+                if (this.cart.items.length > products.length) {
+                    const updatedCart = this.cart.items.filter(item => {
 
-                // compare products` ids from cart and products` ids from shop
-                for (let i = 0; i < productIds.length; i++) {
-                    for (let j = 0; j < avProdIds.length; j++) {
-                        if (productIds[i].toString() === avProdIds[j].toString()) {
-                            // if it`s true, add an item from this.cart.items to updated cart
-                            updatedCart.push(this.cart.items[i]);
-                        }
-                    }
+                        const existingProduct = products.find(product => product._id.toString() === item.productId.toString());
+
+                        return existingProduct && existingProduct._id;
+                    });
+
+                    db.collection('users')
+                        .updateOne({ _id: new mongodb.ObjectId(this._id) }, { $set: { cart: { items: updatedCart } } });
                 }
 
-                // update this.cart.items
-                this.cart.items = updatedCart;
-                return db.collection('users')
-                    .updateOne({ _id: new mongodb.ObjectId(this._id) }, { $set: { cart: { items: updatedCart } } });
-            })
-            .then(() => {
-                // return all products which mentioned in the cart
-                // we pass an array of ids for checking
-                return db.collection('products').find({ _id: { $in: productIds } }).toArray()
-                    .then(products => {
-                        return products.map(product => {
-                            // for quantity: at first find product in the cart
-                            // after that get its quantity
-                            return {
-                                ...product, quantity: this.cart.items.find(item => {
-                                    return item.productId.toString() === product._id.toString();
-                                }).quantity
-                            };
-                        });
-                    });
+                return products.map(product => {
+                    // for quantity: at first find product in the cart
+                    // after that get its quantity
+                    return {
+                        ...product, quantity: this.cart.items.find(item => {
+                            return item.productId.toString() === product._id.toString();
+                        }).quantity
+                    };
+                });
             });
     }
 
