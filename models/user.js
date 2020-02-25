@@ -1,6 +1,3 @@
-const mongodb = require('mongodb');
-
-const getDB = require('../util/database').getDB;
 
 class User {
     constructor(userName, email, cart, id) {

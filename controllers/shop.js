@@ -2,7 +2,7 @@ const Product = require('../models/product');
 
 exports.getProducts = (req, res, next) => {
 
-    Product.fetchAll()
+    Product.find()
         .then(products => {
             // we pass 'products' as a map item
             res.render('shop/product-list', { prods: products, pageTitle: 'All products', path: '/products' });
@@ -25,8 +25,9 @@ exports.getProduct = (req, res, next) => {
 
 exports.getIndex = (req, res, next) => {
 
-    Product.fetchAll()
+    Product.find()
         .then(products => {
+
             res.render('shop/product-list', { prods: products, pageTitle: 'All products', path: '/products' });
         })
         .catch(error => console.log(error));

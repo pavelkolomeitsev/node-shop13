@@ -14,7 +14,7 @@ exports.postAddProduct = (req, res, next) => {
     const price = req.body.price;
     const description = req.body.description;
 
-    const product = new Product(title, price, imageUrl, description, null, req.user._id);
+    const product = new Product({ title: title, price: price, imageUrl: imageUrl, description: description });
 
     product
         .save()
@@ -55,31 +55,26 @@ exports.postEditProduct = (req, res, next) => {
     const updatedImageUrl = req.body.imageUrl;
     const updatedDescription = req.body.description;
 
-    const product = new Product(updatedTitle, updatedPrice, updatedImageUrl, updatedDescription, prodId);
-
-    product.save()
+    Product.findByIdAndUpdate(prodId, // id of product
+        { $set: { title: updatedTitle, price: updatedPrice, imageUrl: updatedImageUrl, description: updatedDescription } }, // updated properties of object
+        { runValidators: true }) // turn on Mongoose`s validators, because Mongoose does not run validation during querying
         .then(() => { res.redirect('/admin/products') })
         .catch(error => console.log(error));
 }
 
 exports.getProducts = (req, res, next) => {
 
-    //req.user.getProducts()
-    Product.fetchAll()
+    Product.find()
         .then(products => {
             res.render('admin/products', { prods: products, pageTitle: 'Admin Products', path: '/admin/products' });
         })
         .catch(error => console.log(error));
-    // .then(([rows]) => {
-    //     res.render('admin/products', { prods: rows, pageTitle: 'Admin Products', path: '/admin/products' });
-    // })
-    // .catch(error => console.log(error));
 }
 
 exports.postDeleteProduct = (req, res, next) => {
     const prodId = req.body.productId;
 
-    Product.deleteById(prodId)
+    Product.findByIdAndDelete(prodId)
         .then(() => {
             res.redirect('/admin/products');
         })
