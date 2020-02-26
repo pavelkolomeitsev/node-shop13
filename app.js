@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const path = require('path'); // it`s a path-builder to the directory or file
 const mongoose = require('mongoose');
 
-//const User = require('./models/user');
+const User = require('./models/user');
 
 const app = express();
 
@@ -29,16 +29,16 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // register this function, it will execute only on incoming request
-// app.use((req, res, next) => {
-//     // we retrieve an exact user from database (table 'User')
-//     User.findById('5e50eb7f9974541370bcf8ee')
-//         .then(user => {
-//             // to have an access to all functionality of User-object we have to create a new one
-//             req.user = new User(user.name, user.email, user.cart, user._id);
-//             next(); // call next() the request will reach a route handler
-//         })
-//         .catch(error => console.log(error));
-// });
+app.use((req, res, next) => {
+    // we retrieve an exact user from database (table 'User')
+    User.findById('5e56365cdc10d110781a2194')
+        .then(user => {
+            // to have an access to all functionality of User-object we have to create a new one
+            req.user = user;
+            next(); // call next() the request will reach a route handler
+        })
+        .catch(error => console.log(error));
+});
 
 // register our routes in app.js
 // it`s a good practice to put them in proper order
@@ -50,6 +50,18 @@ app.use(errorRoutes);
 mongoose
     .connect('mongodb+srv://pavel:yX3dbGT5P@clusternodeshop-frwbo.mongodb.net/shop?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
     .then(result => {
+        User.findOne().then(user => {
+            if (!user) {
+                const user = new User({
+                    name: 'Pavel',
+                    email: 'test@test.com',
+                    cart: {
+                        items: []
+                    }
+                });
+                user.save();
+            }
+        });
         app.listen(9000);
     })
     .catch(error => console.log(error));

@@ -21,6 +21,11 @@ const productSchema = new Schema({
     description: {
         type: String,
         required: true
+    },
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: 'User', // this prop points from which schema ObjectId mongoose has to take
+        required: true
     }
 });
 
