@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const Product = require('./product');
+
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
@@ -21,65 +23,32 @@ const userSchema = new Schema({
     }
 });
 
-// class User {
-//     constructor(userName, email, cart, id) {
-//         this.name = userName;
-//         this.email = email;
-//         this.cart = cart;
-//         this._id = id;
-//     }
+// by helping 'methods'-option we can implement our own methods in User-Schema
+userSchema.methods.addToCart = function (product) {
+    // check if existing product is in the cart
+    const cartProductIndex = this.cart.items.findIndex(item => {
+        return item.productId.toString() === product._id.toString();
+    });
 
-//     save() {
-//         const db = getDB();
+    let newQuantity = 1;
+    const updatedCartItems = [...this.cart.items];
 
-//         return db.collection('users').insertOne(this);
-//     }
+    // increase product`s quantity in the cart
+    if (cartProductIndex >= 0) {
+        newQuantity = this.cart.items[cartProductIndex].quantity + 1;
+        updatedCartItems[cartProductIndex].quantity = newQuantity;
+    } else {
+        updatedCartItems.push({ productId: product._id, quantity: newQuantity });
+    }
 
-//     addToCart(product) {
-//         // check if existing product is in the cart
-//         const cartProductIndex = this.cart.items.findIndex(item => {
-//             return item.productId.toString() === product._id.toString();
-//         });
+    // { ...product, quantity: 1} - object which has two properties:
+    // 1 - an id of product, 2 - quantity of products
+    const updatedCart = { items: updatedCartItems };
 
-//         let newQuantity = 1;
-//         const updatedCartItems = [...this.cart.items];
+    this.cart = updatedCart;
+    return this.save();
+}
 
-//         // increase product`s quantity in the cart
-//         if (cartProductIndex >= 0) {
-//             newQuantity = this.cart.items[cartProductIndex].quantity + 1;
-//             updatedCartItems[cartProductIndex].quantity = newQuantity;
-//         } else {
-//             updatedCartItems.push({ productId: new mongodb.ObjectId(product._id), quantity: newQuantity });
-//         }
-
-//         // { ...product, quantity: 1} - object which has two properties:
-//         // 1 - an id of product, 2 - quantity of products
-//         const updatedCart = { items: updatedCartItems };
-//         const db = getDB();
-//         return db.collection('users').updateOne({ _id: new mongodb.ObjectId(this._id) }, { $set: { cart: updatedCart } });
-//     }
-
-//     getCart() {
-//         const db = getDB();
-//         // take a cart and return all productIds of products in the cart
-//         const productIds = this.cart.items.map(item => {
-//             return item.productId;
-//         });
-//         // return all products which mentioned in the cart
-//         // we pass an array of ids for checking
-//         return db.collection('products').find({ _id: { $in: productIds } }).toArray()
-//             .then(products => {
-//                 return products.map(product => {
-//                     // for quantity: at first find product in the cart
-//                     // after that get its quantity
-//                     return {
-//                         ...product, quantity: this.cart.items.find(item => {
-//                             return item.productId.toString() === product._id.toString();
-//                         }).quantity
-//                     };
-//                 });
-//             });
-//     }
 
 //     deleteProductFromCart(productId) {
 //         const updatedCartItems = this.cart.items.filter(item => {
