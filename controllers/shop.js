@@ -42,7 +42,7 @@ exports.getIndex = (req, res, next) => {
 exports.getCart = (req, res, next) => {
 
     req.user
-        .populate('cart.items.productId')
+        .populate('cart.items.productId') // populate cart-property with not just ids of products but all products
         .execPopulate()
         .then(user => {
 
@@ -74,6 +74,7 @@ exports.postCartDeleteProduct = (req, res, next) => {
 }
 
 exports.postOrder = (req, res, next) => {
+
     req.user.addOrder()
         .then(() => {
             res.redirect('/orders');

@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
 
-const Product = require('./product');
-
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
@@ -49,17 +47,14 @@ userSchema.methods.addToCart = function (product) {
     return this.save();
 }
 
+userSchema.methods.deleteProductFromCart = function (productId) {
+    const updatedCartItems = this.cart.items.filter(item => {
+        return item.productId.toString() !== productId.toString();
+    });
 
-//     deleteProductFromCart(productId) {
-//         const updatedCartItems = this.cart.items.filter(item => {
-//             return item.productId.toString() !== productId.toString();
-//         });
-
-//         const db = getDB();
-
-//         return db.collection('users')
-//             .updateOne({ _id: new mongodb.ObjectId(this._id) }, { $set: { cart: { items: updatedCartItems } } });
-//     }
+    this.cart.items = updatedCartItems;
+    return this.save();
+}
 
 //     addOrder() {
 //         const db = getDB();
@@ -91,9 +86,4 @@ userSchema.methods.addToCart = function (product) {
 //         return db.collection('orders').find({ 'user._id': new mongodb.ObjectId(this._id) }).toArray();
 //     }
 
-//     static findById(userId) {
-//         const db = getDB();
-//         return db.collection('users').findOne({ _id: new mongodb.ObjectId(userId) });
-//     }
-// }
 module.exports = mongoose.model('User', userSchema);
