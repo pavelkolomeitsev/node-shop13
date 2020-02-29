@@ -8,12 +8,15 @@
           <ul>
             <% orders.forEach(order => { %>
               <li>
-                <h1># <%= order._id %></h1>
+                <h3><%= order.date.toDateString() %></h3>
+                <h1>Order #<%= order._id %></h1>
                 <ul>
-                  <% order.items.forEach(product => { %>
-                    <li><%=product.title %> (<%= product.quantity%>)</li>
+                  <% order.products.forEach(product => { %>
+                    <li><%=product.productData.title %> (<%= product.quantity%>)</li>
                   <% }); %> 
                 </ul>
+                <h2>Total price: <%= order.totalPrice %>$</h2>
+                <hr>
               </li>
             <% }); %> 
           </ul>

@@ -86,14 +86,22 @@ exports.postOrder = (req, res, next) => {
                 return { quantity: item.quantity, productData: { ...item.productId._doc } };
             });
 
+            let totalPrice = 0;
+
+            products.forEach(product => {
+                totalPrice += product.productData.price * product.quantity;
+            });
+
             const order = new Order({
                 user: {
                     name: req.user.name,
                     userId: req.user._id
                 },
-                products: products
+                products: products,
+                totalPrice: totalPrice.toFixed(2) // round up total price
             });
 
+            // clear the cart
             user.cart.items = [];
             user.save();
 
@@ -107,7 +115,8 @@ exports.postOrder = (req, res, next) => {
 }
 
 exports.getOrders = (req, res, next) => {
-    req.user.getOrders()
+
+    Order.find({ 'user.userId': req.user._id })
         .then(orders => {
             res.render('shop/orders', { pageTitle: 'Your Orders', path: '/orders', orders: orders });
         })

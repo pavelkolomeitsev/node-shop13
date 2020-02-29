@@ -14,6 +14,14 @@ const orderSchema = new Schema({
             ref: 'User',
             required: true
         }
+    },
+    totalPrice: {
+        type: Number,
+        required: true
+    },
+    date: {
+        type: Date,
+        default: Date.now()
     }
 });
 
