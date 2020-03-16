@@ -16,6 +16,7 @@ app.set('views', 'views'); // where it will be located
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const errorRoutes = require('./routes/404');
+const authRoutes = require('./routes/auth');
 
 // middleware - промежуточная обработка запросов/ответов + переход к следующей промежуточной функции
 // use() - we add a middleware function to handle responses/requests
@@ -44,6 +45,7 @@ app.use((req, res, next) => {
 // it`s a good practice to put them in proper order
 app.use('/admin', adminRoutes); // filtering routes
 app.use(shopRoutes);
+app.use(authRoutes);
 app.use(errorRoutes);
 
 // connect to MongoDb database with mongoose

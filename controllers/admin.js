@@ -5,7 +5,7 @@ exports.getAddProduct = (req, res, next) => {
     // in html-form two important things action="/product" - path, method="POST"
     // should match with router command (post/get/put/delete)
     // res.sendFile(path.join(rootDir, 'views', 'add-product.html'));
-    res.render('admin/edit-product', { pageTitle: 'Add Product', path: '/admin/add-product', editing: false });
+    res.render('admin/edit-product', { pageTitle: 'Add Product', path: '/admin/add-product', editing: false, isAuthenticated: req.isLoggedIn });
 }
 
 exports.postAddProduct = (req, res, next) => {
@@ -47,7 +47,8 @@ exports.getEditProduct = (req, res, next) => {
                 pageTitle: 'Edit Product',
                 path: '/admin/edit-product',
                 editing: editMode,
-                product: product
+                product: product,
+                isAuthenticated: req.isLoggedIn
             });
         })
         .catch(error => console.log(error));
@@ -75,7 +76,7 @@ exports.getProducts = (req, res, next) => {
         // .populate({ path: 'userId', select: '-_id name email' })
         .then(products => {
 
-            res.render('admin/products', { prods: products, pageTitle: 'Admin Products', path: '/admin/products' });
+            res.render('admin/products', { prods: products, pageTitle: 'Admin Products', path: '/admin/products', isAuthenticated: req.isLoggedIn });
         })
         .catch(error => console.log(error));
 }
