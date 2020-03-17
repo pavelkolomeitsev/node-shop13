@@ -2,10 +2,19 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path'); // it`s a path-builder to the directory or file
 const mongoose = require('mongoose');
+const session = require('express-session');
+const MongoDBStore = require('connect-mongodb-session')(session);
 
 const User = require('./models/user');
 
+const MONGODB_URI = 'mongodb+srv://pavel:yX3dbGT5P@clusternodeshop-frwbo.mongodb.net/shop?retryWrites=true&w=majority';
+
 const app = express();
+
+const store = new MongoDBStore({
+    uri: MONGODB_URI,
+    collection: 'sessions'
+});
 
 // set templates manually
 //app.set('view engine', 'pug');
@@ -28,15 +37,17 @@ app.get('/favicon.ico', (req, res) => res.status(204));
 app.use(bodyParser.urlencoded({ extended: false }));
 // how to connect css files with express.js
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({ secret: 'my secret', resave: false, saveUninitialized: false, store: store }));
 
-// register this function, it will execute only on incoming request
 app.use((req, res, next) => {
     // we retrieve an exact user from database (table 'User')
-    User.findById('5e56365cdc10d110781a2194')
+    if (!req.session.user) {
+        return next();
+    }
+    User.findById(req.session.user._id)
         .then(user => {
-            // to have an access to all functionality of User-object we have to create a new one
             req.user = user;
-            next(); // call next() the request will reach a route handler
+            next();
         })
         .catch(error => console.log(error));
 });
@@ -50,7 +61,7 @@ app.use(errorRoutes);
 
 // connect to MongoDb database with mongoose
 mongoose
-    .connect('mongodb+srv://pavel:yX3dbGT5P@clusternodeshop-frwbo.mongodb.net/shop?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
+    .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(result => {
         User.findOne().then(user => {
             if (!user) {
