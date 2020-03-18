@@ -63,18 +63,7 @@ app.use(errorRoutes);
 mongoose
     .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(result => {
-        User.findOne().then(user => {
-            if (!user) {
-                const user = new User({
-                    name: 'Pavel',
-                    email: 'test@test.com',
-                    cart: {
-                        items: []
-                    }
-                });
-                user.save();
-            }
-        });
+
         app.listen(9000);
     })
     .catch(error => console.log(error));
