@@ -4,6 +4,8 @@ const path = require('path'); // it`s a path-builder to the directory or file
 const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
+const csrf = require('csurf');
+const flash = require('connect-flash');
 
 const User = require('./models/user');
 
@@ -15,6 +17,8 @@ const store = new MongoDBStore({
     uri: MONGODB_URI,
     collection: 'sessions'
 });
+
+const csrfProtection = csrf();
 
 // set templates manually
 //app.set('view engine', 'pug');
@@ -38,6 +42,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // how to connect css files with express.js
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({ secret: 'my secret', resave: false, saveUninitialized: false, store: store }));
+app.use(csrfProtection);
+app.use(flash());
 
 app.use((req, res, next) => {
     // we retrieve an exact user from database (table 'User')
@@ -50,6 +56,12 @@ app.use((req, res, next) => {
             next();
         })
         .catch(error => console.log(error));
+});
+
+app.use((req, res, next) => {
+    res.locals.isAuthenticated = req.session.isLoggedIn;
+    res.locals.csrfToken = req.csrfToken();
+    next();
 });
 
 // register our routes in app.js

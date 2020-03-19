@@ -4,16 +4,28 @@ const User = require('../models/user');
 
 // we just redirect the user to login-page
 exports.getLogin = (req, res, next) => {
+    let message = req.flash('error');
+    if (message.length > 0) {
+        message = message[0];
+    } else {
+        message = null;
+    }
     // in html-form two important things action="/product" - path, method="POST"
     // should match with router command (post/get/put/delete)
-    res.render('auth/login', { pageTitle: 'Login', path: '/login', isAuthenticated: false });
+    res.render('auth/login', { pageTitle: 'Login', path: '/login', errorMessage: message });
 };
 
 exports.getSignup = (req, res, next) => {
+    let message = req.flash('error');
+    if (message.length > 0) {
+        message = message[0];
+    } else {
+        message = null;
+    }
     res.render('auth/signup', {
         path: '/signup',
         pageTitle: 'Signup',
-        isAuthenticated: false
+        errorMessage: message
     });
 };
 
@@ -24,6 +36,7 @@ exports.postLogin = (req, res, next) => {
     User.findOne({ email: email }) // find the user in the database by email
         .then(user => {
             if (!user) { // if we don`t find -> redirect
+                req.flash('error', 'Invalid email or password');
                 return res.redirect('/login');
             }
             bcrypt.compare(password, user.password) // otherwise decrypt and compare passwords
@@ -37,6 +50,7 @@ exports.postLogin = (req, res, next) => {
                             res.redirect('/');
                         });
                     }
+                    req.flash('error', 'Invalid email or password');
                     res.redirect('/login'); // otherwise -> try again
                 })
                 .catch(error => {
@@ -57,6 +71,7 @@ exports.postSignup = (req, res, next) => {
         .then(userDoc => {
             // if it`s true -> try again
             if (userDoc) {
+                req.flash('error', 'Email exists already');
                 return res.redirect('/signup');
             }
 
