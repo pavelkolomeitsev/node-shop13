@@ -65,16 +65,32 @@ exports.postEditProduct = (req, res, next) => {
     const updatedImageUrl = req.body.imageUrl;
     const updatedDescription = req.body.description;
 
-    Product.findByIdAndUpdate(prodId, // id of product
-        { $set: { title: updatedTitle, price: updatedPrice, imageUrl: updatedImageUrl, description: updatedDescription } }, // updated properties of object
-        { runValidators: true }) // turn on Mongoose`s validators, because Mongoose does not run validation during querying
-        .then(() => { res.redirect('/admin/products') })
-        .catch(error => console.log(error));
+    Product.findById(prodId)
+        .then(product => {
+            if (product.userId.toString() !== req.user._id.toString()) {
+                return res.redirect('/');
+            }
+            product.title = updatedTitle;
+            product.price = updatedPrice;
+            product.imageUrl = updatedImageUrl;
+            product.description = updatedDescription;
+            return product.save()
+                .then(() => { res.redirect('/admin/products') });
+        })
+        .catch(error => {
+            console.log(error);
+        });
+
+    // Product.findByIdAndUpdate(prodId, // id of product
+    //     { $set: { title: updatedTitle, price: updatedPrice, imageUrl: updatedImageUrl, description: updatedDescription } }, // updated properties of object
+    //     { runValidators: true }) // turn on Mongoose`s validators, because Mongoose does not run validation during querying
+    //     .then(() => { res.redirect('/admin/products') })
+    //     .catch(error => console.log(error));
 }
 
 exports.getProducts = (req, res, next) => {
 
-    Product.find()
+    Product.find({ userId: req.user._id })
         // .select('title price imageUrl -_id')
         // .populate({ path: 'userId', select: '-_id name email' })
         .then(products => {
@@ -91,7 +107,7 @@ exports.getProducts = (req, res, next) => {
 exports.postDeleteProduct = (req, res, next) => {
     const prodId = req.body.productId;
 
-    Product.findByIdAndDelete(prodId)
+    Product.deleteOne({ _id: prodId, userId: req.user._id })
         .then(() => {
             res.redirect('/admin/products');
         })
