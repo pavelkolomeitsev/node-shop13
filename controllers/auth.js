@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const { validationResult } = require('express-validator');
 //const sendgrid = require('@sendgrid/mail');
 
 const User = require('../models/user');
@@ -24,7 +25,13 @@ exports.getLogin = (req, res, next) => {
     }
     // in html-form two important things action="/product" - path, method="POST"
     // should match with router command (post/get/put/delete)
-    res.render('auth/login', { pageTitle: 'Login', path: '/login', errorMessage: message });
+    res.render('auth/login', {
+        pageTitle: 'Login',
+        path: '/login',
+        errorMessage: message,
+        oldInput: {},
+        validationErrors: []
+    });
 };
 
 exports.getSignup = (req, res, next) => {
@@ -37,19 +44,43 @@ exports.getSignup = (req, res, next) => {
     res.render('auth/signup', {
         path: '/signup',
         pageTitle: 'Signup',
-        errorMessage: message
+        errorMessage: message,
+        oldInput: {},
+        validationErrors: []
     });
 };
 
 exports.postLogin = (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
+    const errors = validationResult(req); // validationResult will handle all errors the user makes during input
+    if (!errors.isEmpty()) {
+        return res.status(422).render('auth/login', {
+            path: '/login',
+            pageTitle: 'Login',
+            errorMessage: errors.array()[0].msg,
+            oldInput: {
+                email: email,
+                password: password,
+            },
+            validationErrors: errors.array()
+        });
+    }
 
     User.findOne({ email: email }) // find the user in the database by email
         .then(user => {
             if (!user) { // if we don`t find -> redirect
                 req.flash('error', 'Invalid email or password');
-                return res.redirect('/login');
+                return res.status(422).render('auth/login', {
+                    path: '/login',
+                    pageTitle: 'Login',
+                    errorMessage: 'Invalid email or password',
+                    oldInput: {
+                        email: email,
+                        password: password,
+                    },
+                    validationErrors: [{ param: 'email', param: 'password' }]
+                });
             }
             bcrypt.compare(password, user.password) // otherwise decrypt and compare passwords
                 .then(doMatch => { // get a result
@@ -62,8 +93,16 @@ exports.postLogin = (req, res, next) => {
                             res.redirect('/');
                         });
                     }
-                    req.flash('error', 'Invalid email or password');
-                    res.redirect('/login'); // otherwise -> try again
+                    return res.status(422).render('auth/login', {
+                        path: '/login',
+                        pageTitle: 'Login',
+                        errorMessage: 'Invalid email or password',
+                        oldInput: {
+                            email: email,
+                            password: password,
+                        },
+                        validationErrors: [{ param: 'email', param: 'password' }]
+                    });
                 })
                 .catch(error => {
                     console.log(error);
@@ -77,40 +116,40 @@ exports.postSignup = (req, res, next) => {
     // read fields from signup page
     const email = req.body.email;
     const password = req.body.password;
-    const confirmPassword = req.body.confirmPassword;
-    // check by email if we have the same user
-    User.findOne({ email: email })
-        .then(userDoc => {
-            // if it`s true -> try again
-            if (userDoc) {
-                req.flash('error', 'Email exists already');
-                return res.redirect('/signup');
-            }
+    const errors = validationResult(req); // validationResult will handle all errors the user makes during input
+    if (!errors.isEmpty()) {
+        return res.status(422).render('auth/signup', {
+            path: '/signup',
+            pageTitle: 'Signup',
+            errorMessage: errors.array()[0].msg,
+            oldInput: {
+                email: email,
+                password: password,
+            },
+            validationErrors: errors.array()
+        });
+    }
 
-            // otherwise at first encrypt a password
-            return bcrypt.hash(password, 12)
-                // then save a new user with encrypted password in our database
-                .then(hashedPassword => {
-                    const user = new User({
-                        email: email,
-                        password: hashedPassword,
-                        cart: { items: [] }
-                    });
-                    return user.save();
-                })
-                // after that redirect a user to login page
-                .then(result => {
-                    res.redirect('/login');
-                    return transporter.sendMail({
-                        to: email,
-                        from: 'node_shop@node_complete.com',
-                        subject: 'Signup succeeded',
-                        html: '<h1>You successfully signed up!</h1><p>Get your<b>Money</b> today!</p>'
-                    });
-                })
-                .catch(errpr => {
-                    console.log(error);
-                });
+    // encrypt a password
+    bcrypt.hash(password, 12)
+        // then save a new user with encrypted password in our database
+        .then(hashedPassword => {
+            const user = new User({
+                email: email,
+                password: hashedPassword,
+                cart: { items: [] }
+            });
+            return user.save();
+        })
+        // after that redirect a user to login page
+        .then(result => {
+            res.redirect('/login');
+            return transporter.sendMail({
+                to: email,
+                from: 'node_shop@node_complete.com',
+                subject: 'Signup succeeded',
+                html: '<h1>You successfully signed up!</h1><p>Get your<b> Money </b> today!</p>'
+            });
         })
         .catch(error => {
             console.log(error);

@@ -1,4 +1,5 @@
 const express = require('express');
+const { check, body } = require('express-validator');
 
 //const rootDir = require('../util/path'); // it`s the place where our app begin to start
 const adminController = require('../controllers/admin');
@@ -23,11 +24,33 @@ router.get('/products', isAuth, adminController.getProducts);
 // we can filter post and get requests with the help of get and post commands
 // TWO IMPORTANT THINGS post/get/put/delete commands and PATH ('/product')
 // /admin/add-product => POST
-router.post('/add-product', isAuth, adminController.postAddProduct); // property-function of productsController-object
+router.post('/add-product', [
+    body('title', 'Title should be no longer than 13 chars and contains numbers and chars only')
+        .isString()
+        .isLength({ min: 3, max: 20 }),
+    body('imageUrl', 'Address of image should be correct')
+        .isURL(),
+    body('price')
+        .isFloat()
+        .isLength({ min: 1, max: 13 }),
+    body('description', 'The length of description should be at least 5 chars long')
+        .isLength({ min: 5, max: 50 })
+], isAuth, adminController.postAddProduct); // property-function of productsController-object
 
 router.get('/edit-product/:productId', isAuth, adminController.getEditProduct);
 
-router.post('/edit-product', isAuth, adminController.postEditProduct);
+router.post('/edit-product', [
+    body('title', 'Title should be no longer than 13 chars and contains numbers and chars only')
+        .isString()
+        .isLength({ min: 3, max: 13 }),
+    body('imageUrl')
+        .isURL(),
+    body('price', 'Price should be fullfilled')
+        .isFloat()
+        .isLength({ min: 1, max: 13 }),
+    body('description')
+        .isLength({ min: 5, max: 50 })
+], isAuth, adminController.postEditProduct);
 
 router.post('/delete-product', isAuth, adminController.postDeleteProduct);
 
