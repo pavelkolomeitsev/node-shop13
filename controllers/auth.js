@@ -109,7 +109,11 @@ exports.postLogin = (req, res, next) => {
                     res.redirect('/login');
                 });
         })
-        .catch(error => console.log(error));
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
+        });
 };
 
 exports.postSignup = (req, res, next) => {
@@ -151,8 +155,10 @@ exports.postSignup = (req, res, next) => {
                 html: '<h1>You successfully signed up!</h1><p>Get your<b> Money </b> today!</p>'
             });
         })
-        .catch(error => {
-            console.log(error);
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
         });
 };
 
@@ -206,8 +212,10 @@ exports.postResetPassword = (req, res, next) => {
                     `
                 });
             })
-            .catch(error => {
-                console.log(error);
+            .catch(err => {
+                const error = new Error(err);
+                error.httpStatusCode = 500;
+                return next(error);
             });
     });
 };
@@ -232,8 +240,10 @@ exports.getNewPassword = (req, res, next) => {
             });
 
         })
-        .catch(error => {
-            console.log(error);
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
         });
 
 };
@@ -258,7 +268,9 @@ exports.postNewPassword = (req, res, next) => {
         .then(result => {
             res.redirect('/login');
         })
-        .catch(error => {
-            console.log(error);
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
         });
 };

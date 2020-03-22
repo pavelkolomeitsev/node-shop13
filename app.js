@@ -31,6 +31,8 @@ const shopRoutes = require('./routes/shop');
 const errorRoutes = require('./routes/404');
 const authRoutes = require('./routes/auth');
 
+const errorController = require('./controllers/error');
+
 // middleware - промежуточная обработка запросов/ответов + переход к следующей промежуточной функции
 // use() - we add a middleware function to handle responses/requests
 
@@ -46,30 +48,46 @@ app.use(csrfProtection);
 app.use(flash());
 
 app.use((req, res, next) => {
+    res.locals.isAuthenticated = req.session.isLoggedIn;
+    res.locals.csrfToken = req.csrfToken();
+    next();
+});
+
+app.use((req, res, next) => {
     // we retrieve an exact user from database (table 'User')
     if (!req.session.user) {
         return next();
     }
     User.findById(req.session.user._id)
         .then(user => {
+            if (!user) {
+                return next();
+            }
             req.user = user;
             next();
         })
-        .catch(error => console.log(error));
+        .catch(error => {
+            throw new Error(error);
+        });
 });
 
-app.use((req, res, next) => {
-    res.locals.isAuthenticated = req.session.isLoggedIn;
-    res.locals.csrfToken = req.csrfToken();
-    next();
-});
 
 // register our routes in app.js
 // it`s a good practice to put them in proper order
 app.use('/admin', adminRoutes); // filtering routes
 app.use(shopRoutes);
 app.use(authRoutes);
+app.get('/500', errorController.get500);
 app.use(errorRoutes);
+
+app.use((error, req, res, next) => {
+
+    //res.redirect('/500');
+    res.status(500).render('500', {
+        pageTitle: 'Problems with server!',
+        path: '/500', isAuthenticated: req.session.isLoggedIn
+    });
+});
 
 // connect to MongoDb database with mongoose
 mongoose
