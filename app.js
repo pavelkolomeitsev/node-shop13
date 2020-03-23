@@ -6,6 +6,7 @@ const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
 const flash = require('connect-flash');
+const multer = require('multer');
 
 const User = require('./models/user');
 
@@ -19,6 +20,24 @@ const store = new MongoDBStore({
 });
 
 const csrfProtection = csrf();
+
+const fileStorage = multer.diskStorage({
+    destination: (req, file, callback) => {
+        callback(null, 'images');
+    },
+    filename: (req, file, callback) => {
+        callback(null, new Date().toISOString().split(':').join('-') + '-' + file.originalname);
+    }
+});
+
+const filter = (req, file, callback) => {
+
+    if (file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg') {
+        callback(null, true);
+    } else {
+        callback(null, false);
+    }
+};
 
 // set templates manually
 //app.set('view engine', 'pug');
@@ -41,8 +60,10 @@ app.get('/favicon.ico', (req, res) => res.status(204));
 // body-parser call a middleware function with next-method
 // but before this it will parse incoming request
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(multer({ storage: fileStorage, fileFilter: filter }).single('image')); // image, because field-name form input 'image'
 // how to connect css files with express.js
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use(session({ secret: 'my secret', resave: false, saveUninitialized: false, store: store }));
 app.use(csrfProtection);
 app.use(flash());
