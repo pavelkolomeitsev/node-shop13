@@ -28,8 +28,6 @@ router.post('/add-product', [
     body('title', 'Title should be no longer than 13 chars and contains numbers and chars only')
         .isString()
         .isLength({ min: 3, max: 20 }),
-    body('imageUrl', 'Address of image should be correct')
-        .isURL(),
     body('price')
         .isFloat()
         .isLength({ min: 1, max: 13 }),
@@ -43,8 +41,6 @@ router.post('/edit-product', [
     body('title', 'Title should be no longer than 13 chars and contains numbers and chars only')
         .isString()
         .isLength({ min: 3, max: 13 }),
-    body('imageUrl')
-        .isURL(),
     body('price', 'Price should be fullfilled')
         .isFloat()
         .isLength({ min: 1, max: 13 }),
