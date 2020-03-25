@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const stripe = require('stripe')('sk_test_NMnhORupsELI0AHm4JlA9uni00gEa9U0As');
 
 const PDFDocument = require('pdfkit');
 
@@ -146,6 +147,52 @@ exports.postCartDeleteProduct = (req, res, next) => {
     req.user.deleteProductFromCart(prodId)
         .then(() => {
             res.redirect('/cart');
+        })
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
+        });
+}
+
+exports.getCheckout = (req, res, next) => {
+
+    let products;
+    let total = 0;
+
+    req.user
+        .populate('cart.items.productId') // populate cart-property with not just ids of products but all products
+        .execPopulate()
+        .then(user => {
+
+            products = user.cart.items;
+            total = products.reduce((sum, item) => {
+                return sum + item.quantity * item.productId.price;
+            }, 0);
+
+            return stripe.checkout.sessions.create({
+                payment_method_types: ['card'],
+                line_items: products.map(p => {
+                    return {
+                        name: p.productId.title,
+                        description: p.productId.description,
+                        amount: p.productId.price * 100,
+                        currency: 'usd',
+                        quantity: p.quantity
+                    };
+                }),
+                success_url: req.protocol + '://' + req.get('host') + '/checkout/success',
+                cancel_url: req.protocol + '://' + req.get('host') + '/checkout/cancel',
+            });
+        })
+        .then(session => {
+            res.render('shop/checkout', {
+                pageTitle: 'Checkout',
+                path: '/checkout',
+                products: user.cart.items,
+                totalSum: total,
+                sessionId: session.id
+            });
         })
         .catch(err => {
             const error = new Error(err);
