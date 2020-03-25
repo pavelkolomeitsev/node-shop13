@@ -10,7 +10,7 @@ const multer = require('multer');
 
 const User = require('./models/user');
 
-const MONGODB_URI = 'mongodb+srv://pavel:yX3dbGT5P@clusternodeshop-frwbo.mongodb.net/shop?retryWrites=true&w=majority';
+const MONGODB_URI = 'mongodb+srv://@clusternodeshop-frwbo.mongodb.net/shop?retryWrites=true&w=majority';
 
 const app = express();
 
