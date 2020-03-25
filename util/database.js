@@ -3,7 +3,7 @@ const { Sequelize } = require('sequelize'); // import constructor function
 // create a new sequelize instance
 // where we have to pass - a name of database, username, password and an object
 // it will automatically connect to database
-const sequelize = new Sequelize('node_complete', 'root', 'My12345SQL', { dialect: 'mysql', host: 'localhost', logging: false });
+const sequelize = new Sequelize('node_complete', 'root', '********', { dialect: 'mysql', host: 'localhost', logging: false });
 
 // it`s a database connection pool which managed by Sequelize
 module.exports = sequelize;
