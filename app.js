@@ -1,3 +1,4 @@
+const fs = require('fs');
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path'); // it`s a path-builder to the directory or file
@@ -7,10 +8,13 @@ const MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
 const flash = require('connect-flash');
 const multer = require('multer');
+const helmet = require('helmet');
+const compression = require('compression');
+const morgan = require('morgan');
 
 const User = require('./models/user');
 
-const MONGODB_URI = 'mongodb+srv://pavel:yX3dbGT5P@clusternodeshop-frwbo.mongodb.net/shop?retryWrites=true&w=majority';
+const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@clusternodeshop-frwbo.mongodb.net/${process.env.MONGO_DATABASE}?retryWrites=true&w=majority`;
 
 const app = express();
 
@@ -56,6 +60,12 @@ const errorController = require('./controllers/error');
 // use() - we add a middleware function to handle responses/requests
 
 app.get('/favicon.ico', (req, res) => res.status(204));
+
+const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
+
+app.use(helmet());
+app.use(compression());
+app.use(morgan('combined', { stream: accessLogStream }));
 
 // body-parser call a middleware function with next-method
 // but before this it will parse incoming request
@@ -115,6 +125,6 @@ mongoose
     .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(result => {
 
-        app.listen(9000);
+        app.listen(process.env.PORT || 9000);
     })
     .catch(error => console.log(error));
