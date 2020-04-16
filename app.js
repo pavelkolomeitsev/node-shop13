@@ -14,7 +14,11 @@ const morgan = require('morgan');
 
 const User = require('./models/user');
 
+<<<<<<< HEAD
 const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@clusternodeshop-frwbo.mongodb.net/${process.env.MONGO_DATABASE}?retryWrites=true&w=majority`;
+=======
+const MONGODB_URI = 'mongodb+srv://@clusternodeshop-frwbo.mongodb.net/shop?retryWrites=true&w=majority';
+>>>>>>> 85ff02e3f071da4f7adc4d6a6601f1546e599e24
 
 const app = express();
 
