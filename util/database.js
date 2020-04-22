@@ -1,19 +1,41 @@
-const { Sequelize } = require('sequelize'); // import constructor function
+const mongodb = require('mongodb');
+const MongoClient = mongodb.MongoClient;
 
+<<<<<<< HEAD
 // create a new sequelize instance
 // where we have to pass - a name of database, username, password and an object
 // it will automatically connect to database
 const sequelize = new Sequelize('node_complete', 'root', '********', { dialect: 'mysql', host: 'localhost', logging: false });
+=======
+let db;
+>>>>>>> mongodb
 
-// it`s a database connection pool which managed by Sequelize
-module.exports = sequelize;
-// const mysql = require('mysql2');
+// connect to MongoDB database
+const mongoConnection = (callback) => {
+    // '...frwbo.mongodb.net/shop?retryWrites...' - 'shop' is the name of database
+    MongoClient.connect('mongodb+srv://@clusternodeshop-frwbo.mongodb.net/shop?retryWrites=true&w=majority')
+        .then(client => {
+            console.log('Connected!');
+            db = client.db();
+            callback();
+        })
+        .catch(error => {
+            console.log(error);
+            throw error;
+        });
+}
 
-// const pool = mysql.createPool({
-//     host: 'localhost',
-//     user: 'root',
-//     database: 'node_complete', // name of database is the same as we create a new schema 'node_complete' in MySQL Workbench
-//     password: 'My12345SQL' // password we create during installation MySQL
-// });
+const getDB = () => {
+    if (db) {
+        return db;
+    }
 
+<<<<<<< HEAD
 // module.exports = pool.promise();
+=======
+    throw 'No database found!';
+}
+
+exports.mongoConnection = mongoConnection;
+exports.getDB = getDB;
+>>>>>>> mongodb
