@@ -1,14 +1,7 @@
 const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
 
-<<<<<<< HEAD
-// create a new sequelize instance
-// where we have to pass - a name of database, username, password and an object
-// it will automatically connect to database
-const sequelize = new Sequelize('node_complete', 'root', '********', { dialect: 'mysql', host: 'localhost', logging: false });
-=======
 let db;
->>>>>>> mongodb
 
 // connect to MongoDB database
 const mongoConnection = (callback) => {
@@ -30,12 +23,8 @@ const getDB = () => {
         return db;
     }
 
-<<<<<<< HEAD
-// module.exports = pool.promise();
-=======
     throw 'No database found!';
 }
 
 exports.mongoConnection = mongoConnection;
 exports.getDB = getDB;
->>>>>>> mongodb
